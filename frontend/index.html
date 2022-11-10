@@ -1,0 +1,199 @@
+<html>
+
+<head>
+    <title>AWS re:Invent planner 2022</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Bree+Serif&amp;display=swap" rel="stylesheet">
+
+    <style>
+        .popover-event-close-button-row {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .fc-event {
+            border-width: 2px;
+        }
+
+        table.dataTable tbody tr.selected .session-link {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row py-4">
+            <div id='calendar'></div>
+        </div>
+        <div class="row">
+            <p>* Border color reflects venue of the event (From north to south):</p>
+            <p class="fw-bold">
+                <span style="color:#6cff00;">Encore</span>&nbsp;
+                <span style="color:#000000;">Wynn</span>&nbsp;
+                <span style="color:#ff0000;">Venetian</span>&nbsp;
+                <span style="color:#00f1ff;">Caesars Forum</span>&nbsp;
+                <span style="color:#ffa8a8;">MGM Grand</span>&nbsp;
+                <span style="color:#b400ff;">Mandalay Bay</span>
+            </p>
+        </div>
+
+        <div class="row align-items-center d-flex justify-content-between">
+            <div class="col-12 col-lg-4 px-4 py-1">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="show-my-session-switch">
+                    <label class="form-check-label" for="show-my-session-switch">Show my sessions only</label>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-8 px-4 py-1 d-flex align-items-center justify-content-lg-end justify-content-center">
+                <button type="button" class="btn btn-success mx-2" id="export-ics-button">
+                    Export calendar
+                </button>
+
+                <button type="button" class="btn btn-danger mx-2" data-toggle="modal" data-target="#clear-my-session-modal">
+                    Clear my sessions
+                </button>
+
+                <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#session-import-modal">
+                    Import my sessions
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 fw-bold">
+                Session details are updated every 30 minutes
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 p-4">
+                <div class="table-responsive">
+                    <table id="session-table" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Level</th>
+                                <th>Tracks</th>
+                                <th>Venue</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Available?</th>
+                                <th>Seat</th>
+                                <th>Waitlist</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="session-import-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import my sessions</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="fw-bold">
+                        Your selection is stored in your browser, this app will not store any data outside your computer.
+                    </p>
+                    <p>
+                        1. Login to <a href="https://portal.awsevents.com/events/reinvent2022/dashboard/event/sessions" target="_blank">AWS re:Invent portal</a>
+                    </p>
+
+                    <p>
+                        2. Click on <code>My favorites</code> tab, scroll down and click <code>Show more sessions</code> until all your favourite sessions are loaded.
+                    </p>
+
+                    <p>
+                        3. Open the Development tools of your browser, go to <code>console</code> tab and run the following code:
+                        <pre class="px-4 bg-light"><code>
+var sessionIds = [];
+document.querySelectorAll('*[data-testid]').forEach(function(item){
+    var sessionId = item.dataset.testid
+    if(sessionId.endsWith('-sessionCard')){
+        sessionId = sessionId.replace(/-sessionCard/g,'');
+
+        sessionIds.push(sessionId);
+    }
+});
+
+console.log("--------------- Copy the output below -------------------");
+console.log(JSON.stringify(sessionIds));
+console.log("--------------- Copy the output above -------------------");
+                        </code></pre>
+                    </p>
+
+                    <p>
+                        4. Copy the output and paste into the textbox below.
+                    </p>
+
+                    <p>
+                        5. Click the <code>Import</code> button.
+                    </p>
+                    <div class="input-group">
+                        <textarea class="form-control" id="session-import-input"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="import-button">Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="clear-my-session-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm clearing my sessions?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="confirm-clear-my-session-button">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8"
+        src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.37/moment-timezone-with-data-10-year-range.min.js"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        
+    <script src="ics.deps.min.js"></script>
+    <script src="ics.js"></script>
+    <script type="text/javascript" charset="utf8" src="main.js"></script>
+</body>
+
+</html>
