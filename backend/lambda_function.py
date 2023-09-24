@@ -3,40 +3,35 @@ CLOUDFRONT_DISTRIBUTION_ID = "<FRONTEND_CLOUDFRONT_ID>"
 SECRET_NAME = "<SECRET_NAME>"
 SECRET_REGION = "<SECRET_REGION>"
 
-EVENT_ID = "53b5de8d-7b9d-4fcc-a178-6433641075fe"
-MAX_RESULT = 25
-
-GET_TOKEN_URL = "https://portal.awsevents.com/config/config.json"
-GRAPHQL_URL = "https://api.us-east-1.prod.events.aws.a2z.com/public/graphql"
-ATTENDEE_GRAPHQL_URL = "https://api.us-east-1.prod.events.aws.a2z.com/attendee/graphql"
-
 OLD_PUBLIC_SESSIONS_FILE_PATH = "/tmp/old_sessions.json"
 PUBLIC_SESSIONS_FILE_PATH = "/tmp/sessions.json"
 
 OBJECT_NAME = "sessions.json"
 
-COGNITO_USERPOOL_ID = "us-east-1_Xuc1O0biz"
-COGNITO_CLIENT_ID = "2h40eam2atft40g0c3mlg0aei1"
+COGNITO_USERPOOL_ID = "us-east-1_iu3YTdfT3"
+COGNITO_CLIENT_ID = "4mbpjh0cd78jbbu5kc5i9717v"
 COGNITO_REGION = "us-east-1"
 
-import hashlib
+SESSION_STORAGE_URL = "https://28ym3tywek.execute-api.us-east-1.amazonaws.com/storage"
+AUTH_CHALLENGE_URL = "https://register.reinvent.awsevents.com/auth/challenge?auth_type=login"
+AUTH_LOGIN_URL = "https://register.reinvent.awsevents.com/auth/login/"
+COGNITO_LOGIN_URL = "https://hub.reinvent.awsevents.com/auth/login/cognito/"
+
+SESSION_LIST_URL = "https://hub.reinvent.awsevents.com/attendee-portal-api/sessions/list/"
+
 import sys
 sys.path.append('/opt')
 
+import hashlib
+import re
 import time
 import json
 import requests
 import boto3
+from botocore.config import Config
+from pycognito.aws_srp import AWSSRP
 
-from pycognito.utils import RequestsSrpAuth
-
-def get_api_key():
-    r = requests.get(GET_TOKEN_URL)
-    response = r.json()
-    api_key = response["graphqlpublic"]["unauthenticatedApiKey"]
-    return api_key
-
-def get_cognito_username_and_password():
+def get_username_and_password():
     client = boto3.client(
         service_name = 'secretsmanager',
         region_name = SECRET_REGION,
@@ -53,134 +48,126 @@ def get_cognito_username_and_password():
     return (username, password)
 
 def get_sessions():
-    api_key = get_api_key()
-    cognito_username, cognito_password = get_cognito_username_and_password()
+    cognito_username, cognito_password = get_username_and_password()
 
-    #######################
-    # Get public sessions #
-    #######################
-    with open("./listPublicSessions.graphql", "r") as f:
-        query = f.read()
-    
-    is_first = True
-    next_token = None
-    sessions = {}
-    payload = {
-        "operationName": "listPublicSessions",
-        "variables": {
-            "input": {
-                "eventId": EVENT_ID,
-                "maxResults": MAX_RESULT,
-            }
-        },
-        "query": query
-    }
-
-    while next_token or is_first:
-        if next_token:
-            payload["variables"]["input"]["nextToken"] = next_token
-
-        r = requests.post(
-            GRAPHQL_URL,
-            json = payload,
-            headers = {
-                "x-api-key": api_key,
-            }
-        )
-        response = r.json()
-
-        for session in response["data"]["listPublicSessions"]["results"]:
-            session_id = session["sessionId"]
-            sessions[session_id] = session
-        
-        next_token = response["data"]["listPublicSessions"]["nextToken"]
-        is_first = False
-
-    #########################
-    # Get attendee sessions #
-    #########################
-    auth = RequestsSrpAuth(
-        username = cognito_username,
-        password = cognito_password,
-        user_pool_id = COGNITO_USERPOOL_ID,
-        client_id = COGNITO_CLIENT_ID,
-        user_pool_region = COGNITO_REGION,
+    ################
+    # Get sessions #
+    ################
+    session = requests.Session()
+    r = session.get(
+        AUTH_CHALLENGE_URL
     )
 
-    with open("./listAttendeeSessions.graphql", "r") as f:
-        query = f.read()
-    
-    is_first = True
-    next_token = None
-    payload = {
-        "operationName": "listAttendeeSessions",
-        "variables": {
-            "input": {
-                "eventId": EVENT_ID,
-                "maxResults": MAX_RESULT,
-            }
-        },
-        "query": query
-    }
-    
-    while next_token or is_first:
-        try:
-            if next_token:
-                payload["variables"]["input"]["nextToken"] = next_token
+    regex = r"authorization_code=([^&]+)"
+    matches = re.findall(regex, r.url)
+    authorization_code = matches[0]
 
-            r = requests.post(
-                ATTENDEE_GRAPHQL_URL,
-                json = payload,
-                auth = auth
-            )
-            response = r.json()
+    regex = r"state=([^&]+)"
+    matches = re.findall(regex, r.url)
+    state = matches[0]
 
-            for attendee_session in response["data"]["listAttendeeSessions"]["results"]:
-                session_id = attendee_session["sessionId"]
+    boto3_config = Config(region_name = COGNITO_REGION)
+    client = boto3.client('cognito-idp', config = boto3_config)
+    aws_srp = AWSSRP(
+        username = cognito_username,
+        password = cognito_password,
+        pool_id = COGNITO_USERPOOL_ID,
+        client_id = COGNITO_CLIENT_ID,
+        client = client
+    )
+    tokens = aws_srp.authenticate_user()
 
-                if session_id in sessions:
-                    sessions[session_id]["room"] = attendee_session["room"]
-                    sessions[session_id]["venue"] = attendee_session["venue"]
-                    sessions[session_id]["capacities"] = attendee_session["capacities"]
+    access_token = tokens["AuthenticationResult"]["AccessToken"]
+    id_token = tokens["AuthenticationResult"]["IdToken"]
+    refresh_token = tokens["AuthenticationResult"]["RefreshToken"]
+
+    r = session.post(
+        SESSION_STORAGE_URL,
+        json = {
+            "access_token": access_token,
+            "id_token": id_token,
+            "refresh_token": refresh_token,
+            "authorization_code": authorization_code
+        }
+    )
+
+    r = session.get(
+        AUTH_LOGIN_URL,
+        params = {
+            "code": authorization_code,
+            "state": state
+        }
+    )
+
+    regex = r"authorization_code=([^&]+)"
+    matches = re.findall(regex, r.url)
+    cognito_authorization_code = matches[0]
+
+    regex = r"state=([^&]+)"
+    matches = re.findall(regex, r.url)
+    cognito_state = matches[0]
+
+    r = session.post(
+        SESSION_STORAGE_URL,
+        json = {
+            "access_token": access_token,
+            "id_token": id_token,
+            "refresh_token": refresh_token,
+            "authorization_code": cognito_authorization_code
+        }
+    )
+
+    r = session.get(
+        COGNITO_LOGIN_URL,
+        params = {
+            "code": cognito_authorization_code,
+            "state": cognito_state
+        }
+    )
+
+    r = session.get(
+        SESSION_LIST_URL,
+    )
+    response = r.json()
+
+    extracted_sessions = []
+
+    for session in response["data"]:
+        level = ""
+        topics = []
+
+        for tag in session["tags"]:
+            parent_tag_name = tag["parentTagName"]
+            tag_name = tag["tagName"]
+
+            if parent_tag_name == 'Level':
+                level = tag_name
+            elif parent_tag_name == 'Topic':
+                topics.append(tag_name)
             
-            next_token = response["data"]["listAttendeeSessions"]["nextToken"]
-            is_first = False
-        except Exception as e:
-            print(e)
-            print(r.text)
-            next_token = None
-            is_first = True
-
-    ################
-    # Process data #
-    ################
-    processed_sessions = []
-    for _,(_,session) in enumerate(sessions.items()):
-        tracks = session["tracks"] if "tracks" in session and session["tracks"] else []
-        
-        processed_sessions.append({
-            "level": session["level"],
-            "name": session["name"],
-            "tracks": [{"name": track["name"]} for track in tracks],
-            "startTime": session["startTime"],
-            "duration": session["duration"],
-            "sessionId": session["sessionId"],
-            "alias": session["alias"],
-            "sessionType": None if "sessionType" not in session else {"name": session["sessionType"]["name"]},
+        extracted_sessions.append({
+            "level": level,
+            "name": session["title"],
+            "topics": topics,
+            "startTime": session["startDateTime"],
+            "endTime": session["endDateTime"],
+            "sessionId": session["sessionUid"],
+            "alias": session["thirdPartyID"],
+            "sessionType": session["sessionType"],
             "description": session["description"],
-            "venue": None if ("venue" not in session or not session["venue"]) else {"name": session["venue"]["name"]},
-            "room": None if ("room" not in session or not session["room"]) else {"name": session["room"]["name"]},
+            "venue": session["venueName"],
+            "room": session["locationName"],
             "capacities": None if ("capacities" not in session or not session["capacities"]) else {
                 "reservableRemaining": session["capacities"]["reservableRemaining"],
                 "waitlistRemaining": session["capacities"]["waitlistRemaining"]
             },
         })
-    
+
     ##########################
     # Save session into file #
     ##########################
     with open(PUBLIC_SESSIONS_FILE_PATH, "w") as f:
-        f.write(json.dumps(processed_sessions))
+        f.write(json.dumps(extracted_sessions))
 
 def upload_to_s3():
     s3_client = boto3.client('s3')

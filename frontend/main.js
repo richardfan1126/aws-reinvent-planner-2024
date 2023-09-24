@@ -79,7 +79,7 @@ $(document).ready(function () {
             }
         },
         initialView: 'timeGridWeek',
-        initialDate: '2022-11-28',
+        initialDate: '2023-11-26',
         timeZone: 'America/Los_Angeles',
         scrollTime: '08:00:00',
         height: 600,
@@ -98,7 +98,7 @@ $(document).ready(function () {
                 var session = sessionsMap[sessionId];
                 
                 $('.popover-body').data('sessionId', sessionId);
-                $('.popover-event-code').html('<a class="session-link" target="_blank" href="https://portal.awsevents.com/events/reinvent2022/dashboard/event/sessions/' + session["alias"] + '">' + session["alias"] + '</a>');
+                $('.popover-event-code').html('<a class="session-link" target="_blank" href="https://hub.reinvent.awsevents.com/attendee-portal/catalog/?search=' + session["alias"] + '">' + session["alias"] + '</a>');
                 $('.popover-event-title').text(session["name"]);
                 $('.popover-event-type').text(session["sessionType"]);
                 $('.popover-event-venue').text(session["venueStr"]);
@@ -140,7 +140,7 @@ $(document).ready(function () {
                 data: 'alias',
                 render: function ( data, type, row, meta ) {
                     if(!!data){
-                        return '<a onclick="event.stopPropagation()" class="session-link" target="_blank" href="https://portal.awsevents.com/events/reinvent2022/dashboard/event/sessions/' + data + '">' + data + '</a>';
+                        return '<a onclick="event.stopPropagation()" class="session-link" target="_blank" href="https://hub.reinvent.awsevents.com/attendee-portal/catalog/?search=' + data + '">' + data + '</a>';
                     }else{
                         return data;
                     }
@@ -149,7 +149,7 @@ $(document).ready(function () {
             { data: 'name', width: "15%" },
             { data: 'sessionType' },
             { data: 'level' },
-            { data: 'tracks' },
+            { data: 'topics' },
             { data: 'venue' },
             { data: 'startTime' },
             { data: 'endTime' },
@@ -242,40 +242,19 @@ $(document).ready(function () {
         for(var i=0; i<sessions.length; i++){
             var session = sessions[i];
 
-            var levelCode = "N/A";
-            switch(session["level"]){
-                case "beginner":
-                    levelCode = "100"
-                    break;
-                case "intermediate":
-                    levelCode = "200"
-                    break;
-                case "advanced":
-                    levelCode = "300"
-                    break;
-                case "expert":
-                    levelCode = "400"
-                    break;
-            }
-
-            var tracks = [];
-            for(var j=0; j<session["tracks"].length; j++){
-                tracks.push(session["tracks"][j]["name"]);
-            }
-
-            var tracksStr = tracks.join("<br/>");
+            var topicsStr = session["topics"].join("<br/>");
 
             var startTimeStr = "";
             var startTimeObj = null;
             if(session["startTime"]){
-                startTimeObj = moment.utc(session["startTime"]).tz("America/Los_Angeles");
+                startTimeObj = moment.unix(session["startTime"]).tz("America/Los_Angeles");
                 startTimeStr = startTimeObj.format("YYYY-MM-DD HH:mm:ss");
             }
 
             var endTimeStr = ""
             var endTimeOnj = null;
-            if(session["duration"] && startTimeObj){
-                endTimeOnj = startTimeObj.clone().add(session["duration"], 'minutes');
+            if(session["endTime"]){
+                endTimeOnj = moment.unix(session["endTime"]).tz("America/Los_Angeles");
                 endTimeStr = endTimeOnj.format("YYYY-MM-DD HH:mm:ss");
             }
 
@@ -302,12 +281,12 @@ $(document).ready(function () {
             rows.push({
                 "sessionId": session["sessionId"],
                 "name": session["name"],
-                "level": levelCode,
+                "level": session["level"],
                 "alias": session["alias"],
-                "sessionType": session["sessionType"]["name"],
+                "sessionType": session["sessionType"],
                 "description": session["description"],
                 "venue": venueStr,
-                "tracks": tracksStr,
+                "topics": topicsStr,
                 "startTime": startTimeStr,
                 "endTime": endTimeStr,
                 "reservable": reservable,
@@ -334,22 +313,19 @@ $(document).ready(function () {
             var startTimeStr = "";
             var startTimeObj = null;
             if(session["startTime"]){
-                startTimeObj = moment.utc(session["startTime"]).tz("America/Los_Angeles");
+                startTimeObj = moment.unix(session["startTime"]).tz("America/Los_Angeles");
                 startTimeStr = startTimeObj.format("YYYY-MM-DD HH:mm:ss");
             }
 
             var endTimeStr = ""
             var endTimeOnj = null;
-            if(startTimeObj && session["duration"]){
-                endTimeOnj = startTimeObj.clone().add(session["duration"], 'minutes');
+            if(session["endTime"]){
+                endTimeOnj = moment.unix(session["endTime"]).tz("America/Los_Angeles");
                 endTimeStr = endTimeOnj.format("YYYY-MM-DD HH:mm:ss");
             }
 
             var venueStr = getVenueStr(session);
-            var venue = null;
-            if(session["venue"] && session["venue"]["name"]){
-                venue = session["venue"]["name"]
-            }
+            var venue = session["venue"];
 
             sessionsMap[sessionId] = {
                 "alias": alias,
@@ -358,7 +334,7 @@ $(document).ready(function () {
                 "endTime": endTimeStr,
                 "venueStr": venueStr,
                 "venue": venue,
-                "sessionType": session["sessionType"]["name"]
+                "sessionType": session["sessionType"]
             };
         }
     }
@@ -563,13 +539,13 @@ $(document).ready(function () {
 
     function getVenueStr(session){
         var venueStr = "";
-        if(session["venue"] && session["venue"]["name"]){
-            venueStr += session["venue"]["name"];
+        if(session["venue"]){
+            venueStr += session["venue"];
         }
 
-        if(session["room"] && session["room"]["name"]){
+        if(session["room"]){
             venueStr += " - ";
-            venueStr += session["room"]["name"];
+            venueStr += session["room"];
         }
 
         if(venueStr.length == 0){
