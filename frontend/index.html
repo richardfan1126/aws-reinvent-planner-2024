@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>AWS re:Invent planner 2022</title>
+    <title>AWS re:Invent planner 2023</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -62,9 +62,9 @@
                     Clear my sessions
                 </button>
 
-                <!-- <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#session-import-modal">
+                <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#session-import-modal">
                     Import my sessions
-                </button> -->
+                </button>
             </div>
         </div>
         <div class="row">
@@ -112,38 +112,50 @@
                         Your selection is stored in your browser, this app will not store any data outside your computer.
                     </p>
                     <p>
-                        1. Login to <a href="https://portal.awsevents.com/events/reinvent2022/dashboard/event/sessions" target="_blank">AWS re:Invent portal</a>
+                        1. Login to <a href="https://hub.reinvent.awsevents.com/attendee-portal/agenda" target="_blank">AWS re:Invent portal</a>
                     </p>
 
                     <p>
-                        2. Click on <code>My favorites</code> tab, scroll down and click <code>Show more sessions</code> until all your favourite sessions are loaded.
-                    </p>
-
-                    <p>
-                        3. Open the Development tools of your browser, go to <code>console</code> tab and run the following code:
+                        2. Open the Development tools of your browser, go to <code>console</code> tab and run the following code:
                         <pre class="px-4 bg-light"><code>
-var sessionIds = [];
-document.querySelectorAll('*[data-testid]').forEach(function(item){
-    var sessionId = item.dataset.testid
-    if(sessionId.endsWith('-sessionCard')){
-        sessionId = sessionId.replace(/-sessionCard/g,'');
+var xhr1 = new XMLHttpRequest();
+xhr1.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        var response = JSON.parse(xhr1.responseText);
+        var userUid = response.data.userUid;
 
-        sessionIds.push(sessionId);
+        var xhr2 = new XMLHttpRequest();
+        xhr2.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(xhr2.responseText);
+                var followedSessions = response.data.followedSessions;
+
+                var sessions = [];
+                for(var session of followedSessions){
+                    sessions.push(session.scheduleUid);
+                }
+
+                console.log("--------------- Copy the output below -------------------");
+                console.log(JSON.stringify(sessions));
+                console.log("--------------- Copy the output above -------------------");
+            }
+        };
+
+        xhr2.open("GET", "https://hub.reinvent.awsevents.com/attendee-portal-api/events/getUserReservations/?user_uuid=" + userUid, true);
+        xhr2.send();
     }
-});
-
-console.log("--------------- Copy the output below -------------------");
-console.log(JSON.stringify(sessionIds));
-console.log("--------------- Copy the output above -------------------");
+};
+xhr1.open("GET", "https://hub.reinvent.awsevents.com/attendee-portal-api/user/", true);
+xhr1.send();
                         </code></pre>
                     </p>
 
                     <p>
-                        4. Copy the output and paste into the textbox below.
+                        3. Copy the output and paste into the textbox below.
                     </p>
 
                     <p>
-                        5. Click the <code>Import</code> button.
+                        4. Click the <code>Import</code> button.
                     </p>
                     <div class="input-group">
                         <textarea class="form-control" id="session-import-input"></textarea>

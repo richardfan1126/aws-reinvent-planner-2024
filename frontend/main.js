@@ -516,24 +516,21 @@ $(document).ready(function () {
         }
     })
 
-    function importMySessions(aliasStr){
-        var aliases = [];
+    function importMySessions(uidStr){
+        var uids = [];
 
         try{
-            aliases = JSON.parse(aliasStr);
+            uids = JSON.parse(uidStr);
         }catch{
             return;
         }
 
-        for(var i=0; i<aliases.length; i++){
-            var alias = aliases[i];
+        console.log(uids);
 
-            for(sessionId in sessionsMap){
-                if(sessionsMap[sessionId]["alias"] == alias){
-                    addSession(sessionId);
-                    addSessionToCalendar(sessionId);
-                }
-            }
+        for(var i=0; i<uids.length; i++){
+            var sessionId = uids[i];
+            addSession(sessionId);
+            addSessionToCalendar(sessionId);
         }
     }
 

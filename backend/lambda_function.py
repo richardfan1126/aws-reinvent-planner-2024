@@ -151,7 +151,7 @@ def get_sessions():
             "topics": topics,
             "startTime": session["startDateTime"],
             "endTime": session["endDateTime"],
-            "sessionId": session["sessionUid"],
+            "sessionId": session["scheduleUid"],
             "alias": session["thirdPartyID"],
             "sessionType": session["sessionType"],
             "description": session["description"],
