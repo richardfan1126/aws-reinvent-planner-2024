@@ -157,10 +157,10 @@ def get_sessions():
             "description": session["description"],
             "venue": session["venueName"],
             "room": session["locationName"],
-            "capacities": None if ("capacities" not in session or not session["capacities"]) else {
-                "reservableRemaining": session["capacities"]["reservableRemaining"],
-                "waitlistRemaining": session["capacities"]["waitlistRemaining"]
-            },
+            "capacities": {
+                "reservableRemaining": session["sessionCap"],
+                "waitlistRemaining": ""
+            }
         })
 
     ##########################
