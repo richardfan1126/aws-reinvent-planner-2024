@@ -1,6 +1,6 @@
-# AWS re:Invent Planner 2022
+# AWS re:Invent Planner 2023
 
-This webapp helps you plan your schedule in AWS re:Invent 2022
+This webapp helps you plan your schedule in AWS re:Invent 2023
 
 Live version on: **https://reinvent-planner.richardfan.xyz**
 
