@@ -582,13 +582,26 @@ $(document).ready(function () {
         refreshTable();
     });
 
-    function exportICS(){
+    function exportICS(selectedGroups){
+        var hasEvent = false;
         var cal = ics();
 
         for(var sessionId in mySessions){
             var session = sessionsMap[sessionId];
 
             if(!session){
+                continue;
+            }
+
+            var mySession = mySessions[sessionId];
+
+            if(!mySession){
+                continue;
+            }
+
+            var mySessionColor = mySession["color"];
+            
+            if(selectedGroups.indexOf(mySessionColor) == -1){
                 continue;
             }
 
@@ -608,13 +621,45 @@ $(document).ready(function () {
 
             if(!!startTimeObj && !!endTimeOnj){
                 cal.addEvent(title, "", location, startTimeObj.format("YYYY-MM-DDTHH:mm:ss"), endTimeOnj.format("YYYY-MM-DDTHH:mm:ss"));
+                hasEvent = true;
             }
         }
 
-        cal.download("reinvent");
+        if(hasEvent){
+            cal.download("reinvent");
+        }else{
+            alert("No event to export");
+        }
     }
 
-    $('#export-ics-button').click(function(){
-        exportICS();
+    $('#confirm-export-calender-button').click(function(){
+        var isBlueChecked = $('#calendar-export-group-select-primary').prop('checked');
+        var isGreenChecked = $('#calendar-export-group-select-success').prop('checked');
+        var isYellowChecked = $('#calendar-export-group-select-warning').prop('checked');
+        var isGreyChecked = $('#calendar-export-group-select-secondary').prop('checked');
+
+        var selectedGroups = [];
+
+        if(isBlueChecked){
+            selectedGroups.push('primary');
+        }
+
+        if(isGreenChecked){
+            selectedGroups.push('success');
+        }
+
+        if(isYellowChecked){
+            selectedGroups.push('warning');
+        }
+
+        if(isGreyChecked){
+            selectedGroups.push('secondary');
+        }
+
+        exportICS(selectedGroups);
+    });
+
+    $('#export-calendar-modal').on('show.bs.modal', function (e) {
+        $('.calendar-export-group-select').prop('checked', false);
     });
 });

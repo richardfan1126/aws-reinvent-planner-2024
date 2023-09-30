@@ -34,7 +34,7 @@
             <div id='calendar'></div>
         </div>
         <div class="row">
-            <p>* Border color reflects venue of the event (From north to south):</p>
+            <p>* Border color indicates the venue of event (From north to south):</p>
             <p class="fw-bold">
                 <span style="color:#6cff00;">Encore</span>&nbsp;
                 <span style="color:#000000;">Wynn</span>&nbsp;
@@ -54,7 +54,7 @@
             </div>
 
             <div class="col-12 col-lg-8 px-4 py-1 d-flex align-items-center justify-content-lg-end justify-content-center">
-                <button type="button" class="btn btn-success mx-2" id="export-ics-button">
+                <button type="button" class="btn btn-success mx-2" data-toggle="modal" data-target="#export-calendar-modal">
                     Export calendar
                 </button>
 
@@ -184,6 +184,52 @@ xhr1.send();
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-danger" id="confirm-clear-my-session-button">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="export-calendar-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select color groups to export</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input calendar-export-group-select" type="checkbox" id="calendar-export-group-select-primary">
+                        <label class="form-check-label text-primary" for="calendar-export-group-select-primary">
+                            Blue
+                        </label>
+                    </div>
+
+                    <div class="form-check form-switch">
+                        <input class="form-check-input calendar-export-group-select" type="checkbox" id="calendar-export-group-select-success">
+                        <label class="form-check-label text-success" for="calendar-export-group-select-success">
+                            Green
+                        </label>
+                    </div>
+                    
+                    <div class="form-check form-switch">
+                        <input class="form-check-input calendar-export-group-select" type="checkbox" id="calendar-export-group-select-warning">
+                        <label class="form-check-label text-warning" for="calendar-export-group-select-warning">
+                            Yellow
+                        </label>
+                    </div>
+                    
+                    <div class="form-check form-switch">
+                        <input class="form-check-input calendar-export-group-select" type="checkbox" id="calendar-export-group-select-secondary">
+                        <label class="form-check-label text-secondary" for="calendar-export-group-select-secondary">
+                            Grey
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirm-export-calender-button">Export</button>
                 </div>
             </div>
         </div>
