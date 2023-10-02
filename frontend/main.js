@@ -161,6 +161,17 @@ $(document).ready(function () {
         rowId: 'sessionId',
         orderCellsTop: true,
         fixedHeader: true,
+        dom: 'B<lfrtip>',
+        buttons: [
+            {
+                extend: 'csv',
+                text: "Export to CSV"
+            },
+            {
+                extend: 'excel',
+                text: "Export to Excel"
+            }
+        ],
         rowCallback: function (row, data) {
             if(data["sessionId"] in mySessions){
                 $(row).addClass('selected');
