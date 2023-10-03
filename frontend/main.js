@@ -164,12 +164,22 @@ $(document).ready(function () {
         dom: 'B<lfrtip>',
         buttons: [
             {
+                extend: 'spacer',
+                text: "Export current table to: "
+            },
+            {
                 extend: 'csv',
-                text: "Export to CSV"
+                text: "CSV",
+                attr: {
+                    class: "btn btn-outline-dark mx-2"
+                }
             },
             {
                 extend: 'excel',
-                text: "Export to Excel"
+                text: "Excel",
+                attr: {
+                    class: "btn btn-outline-success mx-2"
+                }
             }
         ],
         rowCallback: function (row, data) {
