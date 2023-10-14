@@ -153,7 +153,7 @@ def get_sessions():
             "endTime": session["endDateTime"],
             "sessionId": session["scheduleUid"],
             "alias": session["thirdPartyID"],
-            "sessionType": session["sessionType"],
+            "sessionType": session["trackName"],
             "description": session["description"],
             "venue": session["venueName"],
             "room": session["locationName"],
@@ -167,7 +167,10 @@ def get_sessions():
     # Save session into file #
     ##########################
     with open(PUBLIC_SESSIONS_FILE_PATH, "w") as f:
-        f.write(json.dumps(extracted_sessions))
+        f.write(json.dumps({
+            "updated": int(time.time()),
+            "sessions": extracted_sessions
+        }))
 
 def upload_to_s3():
     s3_client = boto3.client('s3')

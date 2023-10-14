@@ -171,14 +171,14 @@ $(document).ready(function () {
                 extend: 'csv',
                 text: "CSV",
                 attr: {
-                    class: "btn btn-outline-dark mx-2"
+                    class: "btn btn-outline-dark mx-1"
                 }
             },
             {
                 extend: 'excel',
                 text: "Excel",
                 attr: {
-                    class: "btn btn-outline-success mx-2"
+                    class: "btn btn-outline-success mx-1"
                 }
             }
         ],
@@ -596,11 +596,12 @@ $(document).ready(function () {
     })
 
     loadSessions(function(data){
-        sessions = data;
+        sessions = data["sessions"];
 
         loadSessionsTime();
         loadMySessions();
         refreshTable();
+        setLastUpdateTime(data["updated"]);
     });
 
     function exportICS(selectedGroups){
@@ -683,4 +684,9 @@ $(document).ready(function () {
     $('#export-calendar-modal').on('show.bs.modal', function (e) {
         $('.calendar-export-group-select').prop('checked', false);
     });
+
+    function setLastUpdateTime(epochTime){
+        var datetimeString = moment.unix(epochTime).utc().format("YYYY-MM-DD HH:mm UTC");
+        $('#last-update-time').text(datetimeString);
+    }
 });
