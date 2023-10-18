@@ -122,13 +122,26 @@
                     <p class="fw-bold">
                         Your selection is stored in your browser, this app will not store any data outside your computer.
                     </p>
-                    <p>
-                        1. Login to <a href="https://hub.reinvent.awsevents.com/attendee-portal/agenda" target="_blank">AWS re:Invent portal</a>
-                    </p>
 
-                    <p>
-                        2. Open the Development tools of your browser, go to <code>console</code> tab and run the following code:
-                        <pre class="px-4 bg-light"><code>
+                    <div class="accordion" id="instruction-accordion">
+                        <div class="card">
+                            <div class="card-header" id="headingOne">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                        Import My favourite sessions
+                                    </button>
+                                </h2>
+                            </div>
+                      
+                            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#instruction-accordion">
+                                <div class="card-body">
+                                    <p>
+                                        1. Login to <a href="https://hub.reinvent.awsevents.com/attendee-portal/agenda" target="_blank">AWS re:Invent portal</a>
+                                    </p>
+            
+                                    <p>
+                                        2. Open the Development tools of your browser, go to <code>console</code> tab and run the following code:
+                                        <pre class="px-4 bg-light"><code>
 var xhr1 = new XMLHttpRequest();
 xhr1.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
@@ -158,19 +171,87 @@ xhr1.onreadystatechange = function() {
 };
 xhr1.open("GET", "https://hub.reinvent.awsevents.com/attendee-portal-api/user/", true);
 xhr1.send();
-                        </code></pre>
-                    </p>
+                                        </code></pre>
+                                    </p>
+                
+                                    <p>
+                                        3. Copy the output and paste into the textbox below.
+                                    </p>
+                
+                                    <p>
+                                        4. Click the <code>Import</code> button.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
-                    <p>
-                        3. Copy the output and paste into the textbox below.
-                    </p>
+                        <div class="card">
+                            <div class="card-header" id="headingTwo">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        Import reserved sessions
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#instruction-accordion">
+                                <div class="card-body">
+                                    <p>
+                                        1. Login to <a href="https://hub.reinvent.awsevents.com/attendee-portal/agenda" target="_blank">AWS re:Invent portal</a>
+                                    </p>
+            
+                                    <p>
+                                        2. Open the Development tools of your browser, go to <code>console</code> tab and run the following code:
+                                        <pre class="px-4 bg-light"><code>
+var xhr1 = new XMLHttpRequest();
+xhr1.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        var response = JSON.parse(xhr1.responseText);
+        var userUid = response.data.userUid;
 
-                    <p>
-                        4. Click the <code>Import</code> button.
-                    </p>
+        var xhr2 = new XMLHttpRequest();
+        xhr2.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(xhr2.responseText);
+                var reservedSessions = response.data.userReservationSessions;
+
+                var sessions = [];
+                for(var session of reservedSessions){
+                    sessions.push(session.scheduleUid);
+                }
+
+                console.log("--------------- Copy the output below -------------------");
+                console.log(JSON.stringify(sessions));
+                console.log("--------------- Copy the output above -------------------");
+            }
+        };
+
+        xhr2.open("GET", "https://hub.reinvent.awsevents.com/attendee-portal-api/events/getUserReservations/?user_uuid=" + userUid, true);
+        xhr2.send();
+    }
+};
+xhr1.open("GET", "https://hub.reinvent.awsevents.com/attendee-portal-api/user/", true);
+xhr1.send();
+                                        </code></pre>
+                                    </p>
+                
+                                    <p>
+                                        3. Copy the output and paste into the textbox below.
+                                    </p>
+                
+                                    <p>
+                                        4. Click the <code>Import</code> button.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p></p>
+
                     <div class="input-group">
                         <textarea class="form-control" id="session-import-input"></textarea>
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
