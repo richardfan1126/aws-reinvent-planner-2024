@@ -153,8 +153,6 @@ $(document).ready(function () {
             { data: 'venue' },
             { data: 'startTime' },
             { data: 'endTime' },
-            { data: 'reservable', width: "1%" },
-            { data: 'reservableRemaining' },
             { data: 'description', visible: false }
         ],
         rowId: 'sessionId',
@@ -280,24 +278,6 @@ $(document).ready(function () {
 
             var venueStr = getVenueStr(session);
 
-            var reservableRemaining = "";
-            var waitlistRemaining = "";
-            var reservable = "N";
-
-            if(!!session["capacities"]){
-                if(session["capacities"]["reservableRemaining"] >= 0){
-                    reservableRemaining = session["capacities"]["reservableRemaining"];
-
-                    if(reservableRemaining > 0){
-                        reservable = "Y";
-                    }
-                }
-
-                if(session["capacities"]["waitlistRemaining"] >= 0){
-                    waitlistRemaining = session["capacities"]["waitlistRemaining"];
-                }
-            }
-
             rows.push({
                 "sessionId": session["sessionId"],
                 "name": session["name"],
@@ -308,9 +288,7 @@ $(document).ready(function () {
                 "venue": venueStr,
                 "topics": topicsStr,
                 "startTime": startTimeStr,
-                "endTime": endTimeStr,
-                "reservable": reservable,
-                "reservableRemaining": reservableRemaining
+                "endTime": endTimeStr
             })
         }
 
@@ -559,10 +537,10 @@ $(document).ready(function () {
             venueStr += session["venue"];
         }
 
-        if(session["room"]){
-            venueStr += " - ";
-            venueStr += session["room"];
-        }
+        // if(session["room"]){
+        //     venueStr += " - ";
+        //     venueStr += session["room"];
+        // }
 
         if(venueStr.length == 0){
             venueStr = "N/A";
