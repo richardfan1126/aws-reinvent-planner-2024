@@ -144,6 +144,12 @@ def get_sessions():
                 level = tag_name
             elif parent_tag_name == 'Topic':
                 topics.append(tag_name)
+        
+        remaining_seat = 0
+        try:
+            remaining_seat = session["sessionCap"] - session["personalAgendaCount"]
+        except:
+            pass
             
         extracted_sessions.append({
             "level": level,
@@ -158,7 +164,7 @@ def get_sessions():
             "venue": session["venueName"],
             "room": session["locationName"],
             "capacities": {
-                "reservableRemaining": session["sessionCap"],
+                "reservableRemaining": remaining_seat,
                 "waitlistRemaining": ""
             }
         })

@@ -155,7 +155,6 @@ $(document).ready(function () {
             { data: 'endTime' },
             { data: 'reservable', width: "1%" },
             { data: 'reservableRemaining' },
-            { data: 'waitlistRemaining' },
             { data: 'description', visible: false }
         ],
         rowId: 'sessionId',
@@ -311,8 +310,7 @@ $(document).ready(function () {
                 "startTime": startTimeStr,
                 "endTime": endTimeStr,
                 "reservable": reservable,
-                "reservableRemaining": reservableRemaining,
-                "waitlistRemaining": waitlistRemaining
+                "reservableRemaining": reservableRemaining
             })
         }
 
