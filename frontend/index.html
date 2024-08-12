@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>AWS re:Invent planner 2023</title>
+    <title>AWS re:Invent planner 2024</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -79,7 +79,51 @@
         </div>
         <div class="row">
             <div class="col-12 fw-bold">
-                Session details are updated every 30 minutes
+                Toggle columns
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-lg-4 px-4 pt-1">
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="2" id="column-toggle-type" checked>
+                    <label class="form-check-label" for="column-toggle-type">Type</label>
+                </div>
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="3" id="column-toggle-level" checked>
+                    <label class="form-check-label" for="column-toggle-level">Level</label>
+                </div>
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="4" id="column-toggle-topics" checked>
+                    <label class="form-check-label" for="column-toggle-topics">Topics</label>
+                </div>
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="5" id="column-toggle-area-of-interest" checked>
+                    <label class="form-check-label" for="column-toggle-area-of-interest">Area of Interest</label>
+                </div>
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="6" id="column-toggle-industries" checked>
+                    <label class="form-check-label" for="column-toggle-industries">Industries</label>
+                </div>
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="7" id="column-toggle-roles" checked>
+                    <label class="form-check-label" for="column-toggle-roles">Roles</label>
+                </div>
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="8" id="column-toggle-services" checked>
+                    <label class="form-check-label" for="column-toggle-services">Services</label>
+                </div>
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="9" id="column-toggle-venue" checked>
+                    <label class="form-check-label" for="column-toggle-venue">Venue</label>
+                </div>
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="10" id="column-toggle-start-time" checked>
+                    <label class="form-check-label" for="column-toggle-start-time">Start Time</label>
+                </div>
+                <div class="form-check form-switch py-2">
+                    <input class="form-check-input column-toggle" type="checkbox" data-column="11" id="column-toggle-end-time" checked>
+                    <label class="form-check-label" for="column-toggle-end-time">End Time</label>
+                </div>
             </div>
         </div>
         <div class="row">
@@ -92,7 +136,11 @@
                                 <th>Name</th>
                                 <th>Type</th>
                                 <th>Level</th>
-                                <th>Tracks</th>
+                                <th>Topics</th>
+                                <th>Area of Interest</th>
+                                <th>Industries</th>
+                                <th>Roles</th>
+                                <th>Services</th>
                                 <th>Venue</th>
                                 <th>Start Time</th>
                                 <th>End Time</th>

@@ -79,7 +79,7 @@ $(document).ready(function () {
             }
         },
         initialView: 'timeGridWeek',
-        initialDate: '2023-11-26',
+        initialDate: '2024-12-01',
         timeZone: 'America/Los_Angeles',
         scrollTime: '08:00:00',
         height: 600,
@@ -98,7 +98,7 @@ $(document).ready(function () {
                 var session = sessionsMap[sessionId];
                 
                 $('.popover-body').data('sessionId', sessionId);
-                $('.popover-event-code').html('<a class="session-link" target="_blank" href="https://hub.reinvent.awsevents.com/attendee-portal/catalog/?search=' + session["alias"] + '">' + session["alias"] + '</a>');
+                $('.popover-event-code').html('<a class="session-link" target="_blank" href="https://registration.awsevents.com/flow/awsevents/reinvent24/public/page/catalog?search=' + session["alias"] + '">' + session["alias"] + '</a>');
                 $('.popover-event-title').text(session["name"]);
                 $('.popover-event-type').text(session["sessionType"]);
                 $('.popover-event-venue').text(session["venueStr"]);
@@ -140,7 +140,7 @@ $(document).ready(function () {
                 data: 'alias',
                 render: function ( data, type, row, meta ) {
                     if(!!data){
-                        return '<a onclick="event.stopPropagation()" class="session-link" target="_blank" href="https://hub.reinvent.awsevents.com/attendee-portal/catalog/?search=' + data + '">' + data + '</a>';
+                        return '<a onclick="event.stopPropagation()" class="session-link" target="_blank" href="https://registration.awsevents.com/flow/awsevents/reinvent24/public/page/catalog?search=' + data + '">' + data + '</a>';
                     }else{
                         return data;
                     }
@@ -150,6 +150,10 @@ $(document).ready(function () {
             { data: 'sessionType' },
             { data: 'level' },
             { data: 'topics' },
+            { data: 'areasOfInterest' },
+            { data: 'industries' },
+            { data: 'roles' },
+            { data: 'services' },
             { data: 'venue' },
             { data: 'startTime' },
             { data: 'endTime' },
@@ -158,7 +162,7 @@ $(document).ready(function () {
         rowId: 'sessionId',
         orderCellsTop: true,
         fixedHeader: true,
-        dom: 'B<lfrtip>',
+        dom: '<lfrtip<"clearfix">>B',
         buttons: [
             {
                 extend: 'spacer',
@@ -261,6 +265,10 @@ $(document).ready(function () {
             var session = sessions[i];
 
             var topicsStr = session["topics"].join("<br/>");
+            var areasOfInterestStr = session["areasOfInterest"].join("<br/>");
+            var industriesStr = session["industries"].join("<br/>");
+            var rolesStr = session["roles"].join("<br/>");
+            var servicesStr = session["services"].join("<br/>");
 
             var startTimeStr = "";
             var startTimeObj = null;
@@ -287,6 +295,10 @@ $(document).ready(function () {
                 "description": session["description"],
                 "venue": venueStr,
                 "topics": topicsStr,
+                "industries": industriesStr,
+                "areasOfInterest": areasOfInterestStr,
+                "roles": rolesStr,
+                "services": servicesStr,
                 "startTime": startTimeStr,
                 "endTime": endTimeStr
             })
@@ -665,4 +677,10 @@ $(document).ready(function () {
         var datetimeString = moment.unix(epochTime).utc().format("YYYY-MM-DD HH:mm UTC");
         $('#last-update-time').text(datetimeString);
     }
+
+    $('.column-toggle').change(function(){   
+        var column = table.column($(this).data('column'));
+        var visible = $(this).is(':checked');
+        column.visible(visible);
+    });
 });
