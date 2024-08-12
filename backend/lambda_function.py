@@ -8,28 +8,28 @@ PUBLIC_SESSIONS_FILE_PATH = "/tmp/sessions.json"
 
 OBJECT_NAME = "sessions.json"
 
-COGNITO_USERPOOL_ID = "us-east-1_iu3YTdfT3"
-COGNITO_CLIENT_ID = "4mbpjh0cd78jbbu5kc5i9717v"
-COGNITO_REGION = "us-east-1"
+LOGIN_URL = "https://registration.awsevents.com/flow/processLogin"
+WORKFLOW_API_TOKEN = "awsevents.reinvent24.reg"
 
-SESSION_STORAGE_URL = "https://28ym3tywek.execute-api.us-east-1.amazonaws.com/storage"
-AUTH_CHALLENGE_URL = "https://register.reinvent.awsevents.com/auth/challenge?auth_type=login"
-AUTH_LOGIN_URL = "https://register.reinvent.awsevents.com/auth/login/"
-COGNITO_LOGIN_URL = "https://hub.reinvent.awsevents.com/auth/login/cognito/"
+LOAD_PAGE_URL = "https://registration.awsevents.com/flow/loadPage"
+LOAD_PAGE_PARAMS = {
+    "pageUri": "portal",
+    "overrideShowDate": "false",
+    "workflowApiToken": "awsevents.reinvent24.attendee-portal",
+    "ver": "2.1.20240802162547.b8ee5c8b9"
+}
 
-SESSION_LIST_URL = "https://hub.reinvent.awsevents.com/attendee-portal-api/sessions/list/"
+SESSION_SEARCH_URL = "https://catalog.awsevents.com/api/search"
+SESSION_SEARCH_PAGE_SIZE = 100
 
 import sys
 sys.path.append('/opt')
 
 import hashlib
-import re
 import time
 import json
 import requests
 import boto3
-from botocore.config import Config
-from pycognito.aws_srp import AWSSRP
 
 def get_username_and_password():
     client = boto3.client(
@@ -48,130 +48,117 @@ def get_username_and_password():
     return (username, password)
 
 def get_sessions():
-    cognito_username, cognito_password = get_username_and_password()
+    username, password = get_username_and_password()
 
     ################
     # Get sessions #
     ################
     session = requests.Session()
-    r = session.get(
-        AUTH_CHALLENGE_URL
-    )
-
-    regex = r"authorization_code=([^&]+)"
-    matches = re.findall(regex, r.url)
-    authorization_code = matches[0]
-
-    regex = r"state=([^&]+)"
-    matches = re.findall(regex, r.url)
-    state = matches[0]
-
-    boto3_config = Config(region_name = COGNITO_REGION)
-    client = boto3.client('cognito-idp', config = boto3_config)
-    aws_srp = AWSSRP(
-        username = cognito_username,
-        password = cognito_password,
-        pool_id = COGNITO_USERPOOL_ID,
-        client_id = COGNITO_CLIENT_ID,
-        client = client
-    )
-    tokens = aws_srp.authenticate_user()
-
-    access_token = tokens["AuthenticationResult"]["AccessToken"]
-    id_token = tokens["AuthenticationResult"]["IdToken"]
-    refresh_token = tokens["AuthenticationResult"]["RefreshToken"]
 
     r = session.post(
-        SESSION_STORAGE_URL,
-        json = {
-            "access_token": access_token,
-            "id_token": id_token,
-            "refresh_token": refresh_token,
-            "authorization_code": authorization_code
+        LOGIN_URL,
+        data = {
+            "email": username,
+            "password": password,
+            "workflowApiToken": WORKFLOW_API_TOKEN,
         }
     )
 
     r = session.get(
-        AUTH_LOGIN_URL,
-        params = {
-            "code": authorization_code,
-            "state": state
-        }
+        LOAD_PAGE_URL,
+        params = LOAD_PAGE_PARAMS,
     )
 
-    regex = r"authorization_code=([^&]+)"
-    matches = re.findall(regex, r.url)
-    cognito_authorization_code = matches[0]
-
-    regex = r"state=([^&]+)"
-    matches = re.findall(regex, r.url)
-    cognito_state = matches[0]
-
-    r = session.post(
-        SESSION_STORAGE_URL,
-        json = {
-            "access_token": access_token,
-            "id_token": id_token,
-            "refresh_token": refresh_token,
-            "authorization_code": cognito_authorization_code
-        }
-    )
-
-    r = session.get(
-        COGNITO_LOGIN_URL,
-        params = {
-            "code": cognito_authorization_code,
-            "state": cognito_state
-        }
-    )
-
-    r = session.get(
-        SESSION_LIST_URL,
-    )
     response = r.json()
+    api_profile_token = response["data"]["widgetConf"]["apiProfileToken"]
 
+    current_from = 0
     extracted_sessions = []
 
-    for session in response["data"]:
-        level = ""
-        topics = []
-
-        for tag in session["tags"]:
-            parent_tag_name = tag["parentTagName"]
-            tag_name = tag["tagName"]
-
-            if parent_tag_name == 'Level':
-                level = tag_name
-            elif parent_tag_name == 'Topic':
-                topics.append(tag_name)
-        
-        remaining_seat = 0
-        try:
-            remaining_seat = session["sessionCap"] - session["personalAgendaCount"]
-        except:
-            pass
-            
-        extracted_sessions.append({
-            "level": level,
-            "name": session["title"],
-            "topics": topics,
-            "startTime": session["startDateTime"],
-            "endTime": session["endDateTime"],
-            "sessionId": session["scheduleUid"],
-            "alias": session["thirdPartyID"],
-            "sessionType": session["trackName"],
-            "description": session["description"],
-            "venue": session["venueName"],
-            "room": session["locationName"],
-            "capacities": {
-                "reservableRemaining": remaining_seat,
-                "waitlistRemaining": ""
+    while True:
+        r = session.post(
+            SESSION_SEARCH_URL,
+            data = {
+                "type": "session",
+                "catalogDisplay": "list",
+                "size": SESSION_SEARCH_PAGE_SIZE,
+                "from": current_from,
+            },
+            headers = {
+                "rfapiprofileid": api_profile_token
             }
-        })
+        )
 
-    ##########################
-    # Save session into file #
-    ##########################
+        response = r.json()
+
+        if "sectionList" in response:
+            response = response["sectionList"][0]
+
+        for event_session in response["items"]:
+            level = ""
+            topics = []
+            areas_of_interest = []
+            industries = []
+            roles = []
+            services = []
+
+            for attribute in event_session["attributevalues"]:
+                attribute_id = attribute["attribute_id"]
+                attribute_value = attribute["value"]
+
+                if attribute_id == 'Level':
+                    level = attribute_value
+                elif attribute_id == 'Topic':
+                    topics.append(attribute_value)
+                elif attribute_id == 'Areaofinterest':
+                    areas_of_interest.append(attribute_value)
+                elif attribute_id == 'Industry':
+                    industries.append(attribute_value)
+                elif attribute_id == 'Role':
+                    roles.append(attribute_value)
+                elif attribute_id == 'Services':
+                    services.append(attribute_value)
+            
+            # remaining_seat = 0
+            # try:
+            #     remaining_seat = event_session["sessionCap"] - event_session["personalAgendaCount"]
+            # except:
+            #     pass
+                
+            extracted_sessions.append({
+                "level": level,
+                "name": event_session["title"],
+                "topics": topics,
+                "areasOfInterest": areas_of_interest,
+                "industries": industries,
+                "roles": roles,
+                "services": services,
+                "startTime": event_session["startDateTime"] if "startDateTime" in event_session else "",
+                "endTime": event_session["endDateTime"] if "endDateTime" in event_session else "",
+                "sessionId": event_session["sessionID"],
+                "alias": event_session["code"],
+                "sessionType": event_session["type"],
+                "description": event_session["abstract"],
+                "venue": event_session["venueName"] if "venueName" in event_session else "",
+                # "room": event_session["locationName"],
+                # "capacities": {
+                #     "reservableRemaining": remaining_seat,
+                #     "waitlistRemaining": ""
+                # }
+            })
+
+        current_from = response["from"]
+        num_items = response["numItems"]
+        total = response["total"]
+
+        if current_from + num_items >= total:
+            break
+        else:
+            current_from = current_from + num_items
+
+    # ##########################
+    # # Save session into file #
+    # ##########################
     with open(PUBLIC_SESSIONS_FILE_PATH, "w") as f:
         f.write(json.dumps({
             "updated": int(time.time()),
