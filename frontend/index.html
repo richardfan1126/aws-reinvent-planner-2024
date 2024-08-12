@@ -77,55 +77,67 @@
                 </button>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12 fw-bold">
-                Toggle columns
+        <div class="row pt-4">
+            <div class="accordion" id="toggle-columns-accordion">
+                <div class="card">
+                    <div class="card-header" id="headingOne">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseToggleColumns" aria-expanded="false" aria-controls="collapseOne">
+                                Show/Hide columns
+                            </button>
+                        </h2>
+                    </div>
+              
+                    <div id="collapseToggleColumns" class="collapse" aria-labelledby="headingOne" data-parent="#toggle-columns-accordion">
+                        <div class="card-body">
+                            <div class="col-12 col-lg-4 px-4 pt-1">
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="2" id="column-toggle-type" checked>
+                                    <label class="form-check-label" for="column-toggle-type">Type</label>
+                                </div>
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="3" id="column-toggle-level" checked>
+                                    <label class="form-check-label" for="column-toggle-level">Level</label>
+                                </div>
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="4" id="column-toggle-topics" checked>
+                                    <label class="form-check-label" for="column-toggle-topics">Topics</label>
+                                </div>
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="5" id="column-toggle-area-of-interest" checked>
+                                    <label class="form-check-label" for="column-toggle-area-of-interest">Area of Interest</label>
+                                </div>
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="6" id="column-toggle-industries" checked>
+                                    <label class="form-check-label" for="column-toggle-industries">Industries</label>
+                                </div>
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="7" id="column-toggle-roles" checked>
+                                    <label class="form-check-label" for="column-toggle-roles">Roles</label>
+                                </div>
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="8" id="column-toggle-services" checked>
+                                    <label class="form-check-label" for="column-toggle-services">Services</label>
+                                </div>
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="9" id="column-toggle-venue" checked>
+                                    <label class="form-check-label" for="column-toggle-venue">Venue</label>
+                                </div>
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="10" id="column-toggle-start-time" checked>
+                                    <label class="form-check-label" for="column-toggle-start-time">Start Time</label>
+                                </div>
+                                <div class="form-check form-switch py-2">
+                                    <input class="form-check-input column-toggle" type="checkbox" data-column="11" id="column-toggle-end-time" checked>
+                                    <label class="form-check-label" for="column-toggle-end-time">End Time</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12 col-lg-4 px-4 pt-1">
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="2" id="column-toggle-type" checked>
-                    <label class="form-check-label" for="column-toggle-type">Type</label>
-                </div>
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="3" id="column-toggle-level" checked>
-                    <label class="form-check-label" for="column-toggle-level">Level</label>
-                </div>
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="4" id="column-toggle-topics" checked>
-                    <label class="form-check-label" for="column-toggle-topics">Topics</label>
-                </div>
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="5" id="column-toggle-area-of-interest" checked>
-                    <label class="form-check-label" for="column-toggle-area-of-interest">Area of Interest</label>
-                </div>
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="6" id="column-toggle-industries" checked>
-                    <label class="form-check-label" for="column-toggle-industries">Industries</label>
-                </div>
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="7" id="column-toggle-roles" checked>
-                    <label class="form-check-label" for="column-toggle-roles">Roles</label>
-                </div>
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="8" id="column-toggle-services" checked>
-                    <label class="form-check-label" for="column-toggle-services">Services</label>
-                </div>
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="9" id="column-toggle-venue" checked>
-                    <label class="form-check-label" for="column-toggle-venue">Venue</label>
-                </div>
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="10" id="column-toggle-start-time" checked>
-                    <label class="form-check-label" for="column-toggle-start-time">Start Time</label>
-                </div>
-                <div class="form-check form-switch py-2">
-                    <input class="form-check-input column-toggle" type="checkbox" data-column="11" id="column-toggle-end-time" checked>
-                    <label class="form-check-label" for="column-toggle-end-time">End Time</label>
-                </div>
-            </div>
-        </div>
+
         <div class="row">
             <div class="col-12 p-4">
                 <div class="table-responsive">

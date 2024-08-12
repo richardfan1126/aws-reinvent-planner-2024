@@ -1,5 +1,6 @@
 $(document).ready(function () {
     const MY_SESSION_STORAGE_KEY = 'my-sessions';
+    const COLUMN_PREFERENCE_STORAGE_KEY = 'column-preference';
 
     var sessions = [];
     var sessionsMap = {};
@@ -682,5 +683,58 @@ $(document).ready(function () {
         var column = table.column($(this).data('column'));
         var visible = $(this).is(':checked');
         column.visible(visible);
+
+        setColumnPreference();
     });
+
+    function setColumnPreference(){
+        var columnPreference = {};
+
+        $('.column-toggle').each(function(){
+            var columnIndex = $(this).data('column');
+            var isVisible = $(this).is(':checked');
+
+            columnPreference[columnIndex] = isVisible;
+        });
+
+        localStorage.setItem(COLUMN_PREFERENCE_STORAGE_KEY, JSON.stringify(columnPreference));
+    }
+
+    function applyColumnPreference(){
+        var columnPreference = localStorage.getItem(COLUMN_PREFERENCE_STORAGE_KEY);
+
+        var defaultColumnPreference = {
+            2: true,
+            3: true,
+            4: true,
+            5: true,
+            6: true,
+            7: true,
+            8: true,
+            9: true,
+            10: true,
+            11: true,
+        };
+
+        if(!columnPreference){
+            columnPreference = defaultColumnPreference;
+        }else{
+            try{
+                columnPreference = JSON.parse(columnPreference);
+            }catch{
+                columnPreference = defaultColumnPreference;
+            }
+        }
+        
+        $('.column-toggle').each(function(){
+            var columnIndex = $(this).data('column');
+            var isVisible = !!(columnPreference[columnIndex]);
+
+            $(this).attr('checked', isVisible);
+        });
+
+        $('.column-toggle').trigger('change');
+    }
+
+    applyColumnPreference();
 });
