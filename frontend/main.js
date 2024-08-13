@@ -265,11 +265,11 @@ $(document).ready(function () {
         for(var i=0; i<sessions.length; i++){
             var session = sessions[i];
 
-            var topicsStr = session["topics"].join("<br/>");
-            var areasOfInterestStr = session["areasOfInterest"].join("<br/>");
-            var industriesStr = session["industries"].join("<br/>");
-            var rolesStr = session["roles"].join("<br/>");
-            var servicesStr = session["services"].join("<br/>");
+            var topicsStr = session["topics"].join("<br/>\r");
+            var areasOfInterestStr = session["areasOfInterest"].join("<br/>\r");
+            var industriesStr = session["industries"].join("<br/>\r");
+            var rolesStr = session["roles"].join("<br/>\r");
+            var servicesStr = session["services"].join("<br/>\r");
 
             var startTimeStr = "";
             var startTimeObj = null;
