@@ -274,14 +274,14 @@ $(document).ready(function () {
             var startTimeStr = "";
             var startTimeObj = null;
             if(session["startTime"]){
-                startTimeObj = moment.unix(session["startTime"]).tz("America/Los_Angeles");
+                startTimeObj = moment(session["startTime"], "YYYY/MM/DD HH:mm:ss").tz("UTC");
                 startTimeStr = startTimeObj.format("YYYY-MM-DD HH:mm:ss");
             }
 
             var endTimeStr = ""
             var endTimeOnj = null;
             if(session["endTime"]){
-                endTimeOnj = moment.unix(session["endTime"]).tz("America/Los_Angeles");
+                endTimeOnj = moment(session["endTime"], "YYYY/MM/DD HH:mm:ss").tz("UTC");
                 endTimeStr = endTimeOnj.format("YYYY-MM-DD HH:mm:ss");
             }
 
@@ -323,14 +323,14 @@ $(document).ready(function () {
             var startTimeStr = "";
             var startTimeObj = null;
             if(session["startTime"]){
-                startTimeObj = moment.unix(session["startTime"]).tz("America/Los_Angeles");
+                startTimeObj = moment(session["startTime"], "YYYY/MM/DD HH:mm:ss").tz("UTC");
                 startTimeStr = startTimeObj.format("YYYY-MM-DD HH:mm:ss");
             }
 
             var endTimeStr = ""
             var endTimeOnj = null;
             if(session["endTime"]){
-                endTimeOnj = moment.unix(session["endTime"]).tz("America/Los_Angeles");
+                endTimeOnj = moment(session["endTime"], "YYYY/MM/DD HH:mm:ss").tz("UTC");
                 endTimeStr = endTimeOnj.format("YYYY-MM-DD HH:mm:ss");
             }
 
@@ -472,7 +472,7 @@ $(document).ready(function () {
                 borderColor = "#000000";
                 break;
             
-            case "MGM Grand":
+            case "MGM":
                 borderColor = "#ffa8a8";
                 break;
             
@@ -526,24 +526,6 @@ $(document).ready(function () {
         }
     })
 
-    function importMySessions(uidStr){
-        var uids = [];
-
-        try{
-            uids = JSON.parse(uidStr);
-        }catch{
-            return;
-        }
-
-        console.log(uids);
-
-        for(var i=0; i<uids.length; i++){
-            var sessionId = uids[i];
-            addSession(sessionId);
-            addSessionToCalendar(sessionId);
-        }
-    }
-
     function getVenueStr(session){
         var venueStr = "";
         if(session["venue"]){
@@ -562,18 +544,42 @@ $(document).ready(function () {
         return venueStr;
     }
 
-    $('#session-import-modal').on('show.bs.modal', function (e) {
-        $('#session-import-input').val('');
+    $('#backup-restore-modal').on('show.bs.modal', function (e) {
+        $('#restore-input').val('');
+        $('#backup-content').html(localStorage.getItem(MY_SESSION_STORAGE_KEY));
     });
 
-    $('#import-button').click(function(){
-        var input = $('#session-import-input').val();
-        importMySessions(input);
+    $('#restore-button').click(function(){
+        var input = $('#restore-input').val();
+
+        try{
+            JSON.parse(input);
+        }catch{
+            return;
+        }
+
+        $('#confirm-restore-modal').modal('show');
+        $('#backup-restore-modal').modal('hide');
+    });
+
+    $('#confirm-restore-button').click(function(){
+        var input = $('#restore-input').val();
+
+        try{
+            JSON.parse(input);
+        }catch{
+            return;
+        }
+
+        localStorage.setItem(MY_SESSION_STORAGE_KEY, input);
+
+        loadMySessions();
+        refreshTable();
 
         showMySessionsOnly();
         $('#show-my-session-switch').prop("checked", true);
-        $('#session-import-modal').modal('hide');
-    })
+        $('#confirm-restore-modal').modal('hide');
+    });
 
     $('#confirm-clear-my-session-button').click(function(){
         clearMySessions();

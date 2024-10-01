@@ -124,6 +124,20 @@ def get_sessions():
             #     remaining_seat = event_session["sessionCap"] - event_session["personalAgendaCount"]
             # except:
             #     pass
+
+            startTime = ""
+            endTime = ""
+
+            if 'times' in event_session and len(event_session['times']) > 0 and 'utcStartTime' in event_session['times'][0]:
+                startTime = event_session['times'][0]['utcStartTime']
+
+            if 'times' in event_session and len(event_session['times']) > 0 and 'utcEndTime' in event_session['times'][0]:
+                endTime = event_session['times'][0]['utcEndTime']
+            
+            venue = ""
+            if 'times' in event_session and len(event_session['times']) > 0 and 'room' in event_session['times'][0]:
+                venue = str(event_session['times'][0]['room'])
+                venue = venue.split("|")[0].strip()
                 
             extracted_sessions.append({
                 "level": level,
@@ -133,13 +147,13 @@ def get_sessions():
                 "industries": industries,
                 "roles": roles,
                 "services": services,
-                "startTime": event_session["startDateTime"] if "startDateTime" in event_session else "",
-                "endTime": event_session["endDateTime"] if "endDateTime" in event_session else "",
+                "startTime": startTime,
+                "endTime": endTime,
                 "sessionId": event_session["sessionID"],
                 "alias": event_session["code"],
                 "sessionType": event_session["type"],
                 "description": event_session["abstract"],
-                "venue": event_session["venueName"] if "venueName" in event_session else "",
+                "venue": venue,
                 # "room": event_session["locationName"],
                 # "capacities": {
                 #     "reservableRemaining": remaining_seat,

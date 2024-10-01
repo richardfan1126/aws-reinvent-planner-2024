@@ -47,11 +47,10 @@
         <div class="row">
             <p>* Border color indicates the venue of event (From north to south):</p>
             <p class="fw-bold">
-                <span style="color:#6cff00;">Encore</span>&nbsp;
                 <span style="color:#000000;">Wynn</span>&nbsp;
                 <span style="color:#ff0000;">Venetian</span>&nbsp;
                 <span style="color:#00f1ff;">Caesars Forum</span>&nbsp;
-                <span style="color:#ffa8a8;">MGM Grand</span>&nbsp;
+                <span style="color:#ffa8a8;">MGM</span>&nbsp;
                 <span style="color:#b400ff;">Mandalay Bay</span>
             </p>
         </div>
@@ -71,6 +70,10 @@
 
                 <button type="button" class="btn btn-danger mx-2" data-toggle="modal" data-target="#clear-my-session-modal">
                     Clear my sessions
+                </button>
+
+                <button type="button" class="btn btn-primary mx-2" data-toggle="modal" data-target="#backup-restore-modal">
+                    Backup/Restore my sessions
                 </button>
             </div>
         </div>
@@ -164,11 +167,33 @@
         </div>
     </div>
 
-    <div class="modal fade" id="session-import-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="confirm-restore-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm restoring backup?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="fw-bold">
+                        WARNING: Restoring backup will REMOVE all the existing selection.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="confirm-restore-button">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="backup-restore-modal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Import my sessions</h5>
+                    <h5 class="modal-title">Backup/Restore my sessions</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -176,141 +201,26 @@
                 <div class="modal-body">
                     <p class="fw-bold">
                         Your selection is stored in your browser, this app will not store any data outside your computer.
+
+                        To backup your session selection, save the code below:
                     </p>
 
-                    <div class="accordion" id="instruction-accordion">
-                        <div class="card">
-                            <div class="card-header" id="headingOne">
-                                <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                                        Import My favourite sessions
-                                    </button>
-                                </h2>
-                            </div>
-                      
-                            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#instruction-accordion">
-                                <div class="card-body">
-                                    <p>
-                                        1. Login to <a href="https://hub.reinvent.awsevents.com/attendee-portal/agenda" target="_blank">AWS re:Invent portal</a>
-                                    </p>
-            
-                                    <p>
-                                        2. Open the Development tools of your browser, go to <code>console</code> tab and run the following code:
-                                        <pre class="px-4 bg-light"><code>
-var xhr1 = new XMLHttpRequest();
-xhr1.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-        var response = JSON.parse(xhr1.responseText);
-        var userUid = response.data.userUid;
+                    <code id="backup-content"></code>
 
-        var xhr2 = new XMLHttpRequest();
-        xhr2.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                var response = JSON.parse(xhr2.responseText);
-                var followedSessions = response.data.followedSessions;
+                    <hr class="hr" />
 
-                var sessions = [];
-                for(var session of followedSessions){
-                    sessions.push(session.scheduleUid);
-                }
-
-                console.log("--------------- Copy the output below -------------------");
-                console.log(JSON.stringify(sessions));
-                console.log("--------------- Copy the output above -------------------");
-            }
-        };
-
-        xhr2.open("GET", "https://hub.reinvent.awsevents.com/attendee-portal-api/events/getUserReservations/?user_uuid=" + userUid, true);
-        xhr2.send();
-    }
-};
-xhr1.open("GET", "https://hub.reinvent.awsevents.com/attendee-portal-api/user/", true);
-xhr1.send();
-                                        </code></pre>
-                                    </p>
-                
-                                    <p>
-                                        3. Copy the output and paste into the textbox below.
-                                    </p>
-                
-                                    <p>
-                                        4. Click the <code>Import</code> button.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header" id="headingTwo">
-                                <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                        Import reserved sessions
-                                    </button>
-                                </h2>
-                            </div>
-                            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#instruction-accordion">
-                                <div class="card-body">
-                                    <p>
-                                        1. Login to <a href="https://hub.reinvent.awsevents.com/attendee-portal/agenda" target="_blank">AWS re:Invent portal</a>
-                                    </p>
-            
-                                    <p>
-                                        2. Open the Development tools of your browser, go to <code>console</code> tab and run the following code:
-                                        <pre class="px-4 bg-light"><code>
-var xhr1 = new XMLHttpRequest();
-xhr1.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-        var response = JSON.parse(xhr1.responseText);
-        var userUid = response.data.userUid;
-
-        var xhr2 = new XMLHttpRequest();
-        xhr2.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                var response = JSON.parse(xhr2.responseText);
-                var reservedSessions = response.data.userReservationSessions;
-
-                var sessions = [];
-                for(var session of reservedSessions){
-                    sessions.push(session.scheduleUid);
-                }
-
-                console.log("--------------- Copy the output below -------------------");
-                console.log(JSON.stringify(sessions));
-                console.log("--------------- Copy the output above -------------------");
-            }
-        };
-
-        xhr2.open("GET", "https://hub.reinvent.awsevents.com/attendee-portal-api/events/getUserReservations/?user_uuid=" + userUid, true);
-        xhr2.send();
-    }
-};
-xhr1.open("GET", "https://hub.reinvent.awsevents.com/attendee-portal-api/user/", true);
-xhr1.send();
-                                        </code></pre>
-                                    </p>
-                
-                                    <p>
-                                        3. Copy the output and paste into the textbox below.
-                                    </p>
-                
-                                    <p>
-                                        4. Click the <code>Import</code> button.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p></p>
+                    <p class="fw-bold">
+                        To restore your session selection, paste your saved code into the below textbox and click "Restore":
+                    </p>
 
                     <div class="input-group">
-                        <textarea class="form-control" id="session-import-input"></textarea>
+                        <textarea class="form-control" id="restore-input"></textarea>
                     </div>
 
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="import-button">Import</button>
+                    <button type="button" class="btn btn-primary" id="restore-button">Restore</button>
                 </div>
             </div>
         </div>
