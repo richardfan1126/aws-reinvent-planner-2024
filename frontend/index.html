@@ -217,6 +217,79 @@
                         <textarea class="form-control" id="restore-input"></textarea>
                     </div>
 
+                    <p></p>
+
+                    <div class="accordion" id="extract-session-accordion">
+                        <div class="card">
+                            <div class="card-header" id="headingOne">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseExtractSession" aria-expanded="false" aria-controls="collapseOne">
+                                        You can also extract your schedule from the official portal. Detail steps here:
+                                    </button>
+                                </h2>
+                            </div>
+                      
+                            <div id="collapseExtractSession" class="collapse" aria-labelledby="headingOne" data-parent="#extract-session-accordion">
+                                <div class="card-body">
+                                    <ol>
+                                        <li>
+                                            Login to the <a href="https://registration.awsevents.com/flow/awsevents/reinvent24/attendee-portal/page/portal" target="_blank">official portal</a>
+                                        </li>
+                                        <li>
+                                            Open the browser console (F12) and go to "Console" tab
+                                        </li>
+                                        <li>
+                                            Run the below code to extract your schedule:
+                                            <pre><code>
+var apiProfileToken = null;
+var authToken = null;
+var widgetId = null;
+
+fetch("https://registration.awsevents.com/flow/loadPage?pageUri=myagenda&workflowApiToken=awsevents.reinvent24.myagenda")
+.then(response => response.json())
+.then(data => {
+    apiProfileToken = data.data.widgetConf.apiProfileToken;
+    widgetId = data.data.widgetConf.widgetToken;
+
+    authToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("rfjwt="))
+        ?.split("=")[1];
+
+    fetch("https://catalog.awsevents.com/api/myData", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "rfapiprofileid": apiProfileToken,
+            "rfauthtoken": authToken,
+            "rfwidgetid": widgetId
+        }
+    }).then(response => response.json())
+    .then(data => {
+        var sessionIds = data.mySchedule.map((session) => session.sessionID);
+
+        var backupCodeObj = {};
+        for (let sessionId of sessionIds) {
+            backupCodeObj[sessionId] = {"color":"primary"}
+        }
+
+        console.log(JSON.stringify(backupCodeObj));
+    });
+});
+                                            </code></pre>
+                                        </li>
+                                        <li>
+                                            Copy the output from the console and paste it into the textbox above
+                                        </li>
+                                        <li>
+                                            Click "Restore"
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
