@@ -365,6 +365,32 @@ fetch("https://registration.awsevents.com/flow/loadPage?pageUri=myagenda&workflo
         </div>
     </div>
 
+    <div class="modal fade" id="thankyou-modal" tabindex="-1" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        This website is deprecated.
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Thank you for your support!
+                    </p>
+
+                    <p>
+                        This website is deprecated and no longer updated.
+                    </p>
+
+                    <p>
+                        If you want to plan you AWS re:Invent sessions, please use Unofficial <a
+                            href="https://reinvent-planner.cloud/">AWS re:Invent Session Planner 2025</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"
         integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
@@ -388,6 +414,12 @@ fetch("https://registration.awsevents.com/flow/loadPage?pageUri=myagenda&workflo
     <script src="ics.deps.min.js"></script>
     <script src="ics.js"></script>
     <script type="text/javascript" charset="utf8" src="main.js"></script>
+
+    <script type="text/javascript" charset="utf8">
+        $(document).ready(function () {
+            $('#thankyou-modal').modal('show');
+        });
+    </script>
 </body>
 
 </html>
